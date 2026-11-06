@@ -1,0 +1,4 @@
+metric_name,baseline_value,tolerance,threshold_type,last_updated
+overall_accuracy,0.88,0.05,minimum,2026-08-20
+category_accuracy_cancellation,0.65,0.15,minimum,2026-09-01
+category_accuracy_technical_issue,0.90,0.15,minimum,2026-08-20

@@ -1,0 +1,5 @@
+metric_name,threshold_value,threshold_type,is_critical
+invalid_output_rate,0.05,maximum,true
+judge_flag_rate,0.15,maximum,true
+prediction_distribution_shift,0.20,maximum,false
+eligible_coverage,0.70,minimum,false

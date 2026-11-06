@@ -1,0 +1,148 @@
+# Copyright 2026 Snowflake Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2
+
+models:
+  - name: eval_row_level
+    description: LLM judge semantic evaluation + deterministic format check per prediction
+    config:
+      meta:
+        eval_llm_model: "{{ var('eval_llm_model') }}"
+        categories: "{{ var('categories') | join(',') }}"
+    columns:
+      - name: ticket_id
+        tests:
+          - not_null
+      - name: judge_flagged
+        description: True if the LLM judge found semantic issues (hallucination, category-reasoning mismatch)
+        tests:
+          - not_null
+      - name: is_valid_output
+        description: Deterministic format check - did the model return valid structured output
+        tests:
+          - not_null
+
+  - name: eval_ground_truth
+    description: Ground truth comparison - predicted vs expected category
+    columns:
+      - name: ticket_id
+        tests:
+          - not_null
+      - name: is_correct
+        tests:
+          - not_null
+
+  - name: eval_aggregate
+    description: System-level and segment-level quality metrics
+    columns:
+      - name: run_id
+        tests:
+          - not_null
+      - name: metric_name
+        description: Metric key; matches metric_name in evaluation_thresholds (gate) and baseline_metrics (regression)
+        tests:
+          - not_null
+      - name: metric_value
+        description: Metric value for the run, rounded to 4 decimals
+        tests:
+          - not_null
+      - name: segment
+        description: "'overall', or the expected category for per-category accuracy (CI only)"
+
+# Unit tests below exercise the PROD branch of eval_aggregate (target != ci).
+# Tagged runtime so the CI selector (--exclude tag:runtime) skips them.
+unit_tests:
+  - name: shift_detects_single_class_collapse
+    description: A run that predicts only one class must score 1 - 1/6, not 0
+    model: eval_aggregate
+    config:
+      tags: ['runtime']
+    given:
+      - input: ref('classify_ticket')
+        rows:
+          - {run_id: 'r1', predicted_category: 'billing'}
+          - {run_id: 'r1', predicted_category: 'billing'}
+          - {run_id: 'r1', predicted_category: 'billing'}
+      - input: ref('eval_row_level')
+        rows:
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+      - input: ref('eligibility_check')
+        rows:
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+    expect:
+      rows:
+        - {run_id: 'r1', metric_name: 'invalid_output_rate', metric_value: 0.0}
+        - {run_id: 'r1', metric_name: 'judge_flag_rate', metric_value: 0.0}
+        - {run_id: 'r1', metric_name: 'prediction_distribution_shift', metric_value: 0.8333}
+        - {run_id: 'r1', metric_name: 'eligible_coverage', metric_value: 1.0}
+
+  - name: shift_excludes_error_sentinels
+    description: PARSE_ERROR / LLM_ERROR are not categories; an even spread over the taxonomy scores 0
+    model: eval_aggregate
+    config:
+      tags: ['runtime']
+    given:
+      - input: ref('classify_ticket')
+        rows:
+          - {run_id: 'r1', predicted_category: 'billing'}
+          - {run_id: 'r1', predicted_category: 'account_access'}
+          - {run_id: 'r1', predicted_category: 'technical_issue'}
+          - {run_id: 'r1', predicted_category: 'product_question'}
+          - {run_id: 'r1', predicted_category: 'cancellation'}
+          - {run_id: 'r1', predicted_category: 'other'}
+          - {run_id: 'r1', predicted_category: 'PARSE_ERROR'}
+          - {run_id: 'r1', predicted_category: 'PARSE_ERROR'}
+          - {run_id: 'r1', predicted_category: 'PARSE_ERROR'}
+          - {run_id: 'r1', predicted_category: 'PARSE_ERROR'}
+          - {run_id: 'r1', predicted_category: 'LLM_ERROR'}
+          - {run_id: 'r1', predicted_category: 'LLM_ERROR'}
+      - input: ref('eval_row_level')
+        rows:
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: true, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: false, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: false, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: false, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: false, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: false, judge_flagged: false}
+          - {run_id: 'r1', is_valid_output: false, judge_flagged: false}
+      - input: ref('eligibility_check')
+        rows:
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+          - {is_eligible: true}
+    expect:
+      rows:
+        - {run_id: 'r1', metric_name: 'invalid_output_rate', metric_value: 0.5}
+        - {run_id: 'r1', metric_name: 'judge_flag_rate', metric_value: 0.0}
+        - {run_id: 'r1', metric_name: 'prediction_distribution_shift', metric_value: 0.0}
+        - {run_id: 'r1', metric_name: 'eligible_coverage', metric_value: 1.0}
