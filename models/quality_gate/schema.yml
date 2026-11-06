@@ -1,0 +1,85 @@
+# Copyright 2026 Snowflake Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2
+
+models:
+  - name: gate_decision
+    description: Run-level quality gate producing explicit PASS/FAIL with failure reasons
+    columns:
+      - name: run_id
+        description: dbt invocation id of the run that produced this decision
+        tests:
+          - not_null
+      - name: gate_result
+        description: PASS if no critical threshold in evaluation_thresholds failed (a missing metric counts as a failure), else FAIL
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['PASS', 'FAIL']
+
+unit_tests:
+  - name: gate_fails_when_critical_metric_missing
+    description: A critical metric with no row in eval_aggregate must FAIL the gate, not be silently dropped
+    model: gate_decision
+    given:
+      - input: ref('classify_ticket')
+        rows:
+          - {run_id: 'r1'}
+      - input: ref('evaluation_thresholds')
+        rows:
+          - {metric_name: invalid_output_rate, threshold_value: 0.05, threshold_type: maximum, is_critical: true}
+          - {metric_name: judge_flag_rate, threshold_value: 0.15, threshold_type: maximum, is_critical: true}
+      - input: ref('eval_aggregate')
+        rows:
+          # judge_flag_rate intentionally absent
+          - {run_id: 'r1', metric_name: invalid_output_rate, metric_value: 0.01}
+    expect:
+      rows:
+        - {run_id: 'r1', gate_result: 'FAIL', total_failures: 1, critical_failures: 1}
+
+  - name: gate_fails_when_critical_metric_null
+    model: gate_decision
+    given:
+      - input: ref('classify_ticket')
+        rows:
+          - {run_id: 'r1'}
+      - input: ref('evaluation_thresholds')
+        rows:
+          - {metric_name: judge_flag_rate, threshold_value: 0.15, threshold_type: maximum, is_critical: true}
+      - input: ref('eval_aggregate')
+        rows:
+          - {run_id: 'r1', metric_name: judge_flag_rate, metric_value: null}
+    expect:
+      rows:
+        - {run_id: 'r1', gate_result: 'FAIL', total_failures: 1, critical_failures: 1}
+
+  - name: gate_passes_when_all_metrics_within_threshold
+    model: gate_decision
+    given:
+      - input: ref('classify_ticket')
+        rows:
+          - {run_id: 'r1'}
+      - input: ref('evaluation_thresholds')
+        rows:
+          - {metric_name: invalid_output_rate, threshold_value: 0.05, threshold_type: maximum, is_critical: true}
+          - {metric_name: judge_flag_rate, threshold_value: 0.15, threshold_type: maximum, is_critical: true}
+      - input: ref('eval_aggregate')
+        rows:
+          - {run_id: 'r1', metric_name: invalid_output_rate, metric_value: 0.01}
+          - {run_id: 'r1', metric_name: judge_flag_rate, metric_value: 0.05}
+    expect:
+      rows:
+        - {run_id: 'r1', gate_result: 'PASS', total_failures: 0, critical_failures: 0}

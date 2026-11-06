@@ -1,0 +1,21 @@
+ticket_id,ticket_text,language,created_at,category_ground_truth,priority,customer_tier
+TKT-101,"We noticed an unexpected spike in our compute credits over the weekend. Nobody was running queries. Could there be a runaway task or scheduled job we forgot about?",en,2026-02-03,,medium,enterprise
+TKT-102,"Can you help me set up a resource monitor to alert when spending exceeds $500 per day? I want email notifications sent to our finance team.",en,2026-02-03,,medium,business
+TKT-103,"The Streamlit app I deployed in Snowflake keeps crashing with an out-of-memory error. It works fine locally but fails after about 5 minutes in production.",en,2026-02-03,,high,enterprise
+TKT-104,"I need to rotate the RSA key pair for our service account. What is the process for updating the public key without causing downtime for our automated pipelines?",en,2026-02-04,,high,enterprise
+TKT-105,"Is there a way to see which queries are consuming the most credits? We need to identify our top 10 most expensive queries from the last 30 days.",en,2026-02-04,,low,business
+TKT-106,"We want to cancel our annual contract. Our company was acquired and the parent company already has a Snowflake account. Please advise on the process.",en,2026-02-04,,medium,enterprise
+TKT-107,"Dynamic tables are not refreshing. The target lag is set to 10 minutes but the last refresh was 3 hours ago. No errors in the refresh history.",en,2026-02-05,,high,enterprise
+TKT-108,"How does Time Travel work with cloned databases? If I clone a database does the clone get its own Time Travel retention or share the original?",en,2026-02-05,,low,business
+TKT-109,"Our Cortex AI function calls are returning 429 rate limit errors during peak hours. We are making about 500 calls per minute. What are the limits and how can we increase them?",en,2026-02-05,,high,enterprise
+TKT-110,"Please remove user m.wilson@example.com from our account. They transferred to a different department and no longer need access.",en,2026-02-06,,low,business
+TKT-111,"We are seeing data inconsistencies between our Snowflake tables and the source Postgres database. Some rows that exist in Postgres are missing in Snowflake after the CDC pipeline runs.",en,2026-02-06,,critical,enterprise
+TKT-112,"What is the pricing difference between standard and Snowpark-optimized warehouses? We are running ML training jobs and wondering if the optimized option is worth the extra cost.",en,2026-02-06,,low,business
+TKT-113,"My account has been locked for 24 hours after a failed SSO configuration. I am the only admin. How can I regain access?",en,2026-02-07,,critical,enterprise
+TKT-114,"We want to downgrade from Enterprise to Standard edition. Our team of 5 does not use any Enterprise features. What would the savings look like?",en,2026-02-07,,medium,business
+TKT-115,"The MERGE statement is running for 6 hours on a table with 2 billion rows. It used to complete in 45 minutes. We have not changed the query or the warehouse size.",en,2026-02-07,,high,enterprise
+TKT-116,"Can I use Snowflake to query data stored in Azure Blob Storage without copying it? We have about 50TB of Parquet files we want to query in place.",en,2026-02-08,,medium,enterprise
+TKT-117,"Our invoice shows charges for a warehouse called ANALYTICS_WH_OLD that we deleted 3 months ago. Please investigate and issue a credit.",en,2026-02-08,,high,business
+TKT-118,"",en,2026-02-08,,low,free
+TKT-119,"fix pls",en,2026-02-08,,low,free
+TKT-120,"Nous avons besoin d'aide pour configurer la replication entre nos comptes dans differentes regions AWS.",fr,2026-02-09,,medium,enterprise

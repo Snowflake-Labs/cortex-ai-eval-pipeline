@@ -1,0 +1,48 @@
+# Copyright 2026 Snowflake Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2
+
+models:
+  - name: classify_ticket
+    description: AI classification of eligible support tickets using Cortex AI
+    config:
+      meta:
+        llm_model: "{{ var('llm_model') }}"
+        prompt_version: "{{ var('prompt_version') }}"
+        categories: "{{ var('categories') | join(',') }}"
+    columns:
+      - name: ticket_id
+        tests:
+          - not_null
+      - name: predicted_category
+        description: Normalised (lower-case) label from var('categories'), or an error sentinel when no structured response came back
+        tests:
+          - not_null
+          # Checked at the source so a bad label fails before it reaches the gate
+          # or publication. Error sentinels are allowed here; they are counted
+          # by invalid_output_rate instead.
+          - accepted_values:
+              arguments:
+                values: "{{ var('categories') + var('error_sentinels') }}"
+      - name: confidence
+        description: Model-reported confidence; valid outputs are in [0, 1]
+        tests:
+          - not_null
+      - name: run_id
+        description: dbt invocation id shared by every model in the run
+        tests:
+          - not_null
+      - name: input_fingerprint
+        description: sha256 of ticket_id, ticket text, prompt_version and model_name; changes when any of them change

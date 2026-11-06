@@ -1,0 +1,85 @@
+# Copyright 2026 Snowflake Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2
+
+models:
+  - name: regression_check
+    description: >
+      Compares current run metrics against stored baselines to detect regressions.
+      Used in CI (offline evaluation) to block merges that degrade quality.
+    columns:
+      - name: metric_name
+        description: Name of the metric being compared
+        tests:
+          - not_null
+      - name: current_value
+        description: Metric value from the current pipeline run
+      - name: baseline_value
+        description: Last known good value from baseline_metrics seed
+      - name: tolerance
+        description: Acceptable degradation margin
+      - name: regression_status
+        description: PASS if within tolerance, REGRESSION if beyond it, MISSING if the baselined metric has no current value
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['PASS', 'REGRESSION', 'MISSING']
+      - name: delta
+        description: Difference between current and baseline (negative = worse)
+
+unit_tests:
+  - name: regression_missing_when_baselined_metric_absent
+    description: A baselined metric with no current row must be reported as MISSING, not silently dropped
+    model: regression_check
+    given:
+      - input: ref('baseline_metrics')
+        rows:
+          - {metric_name: overall_accuracy, baseline_value: 0.88, tolerance: 0.05, threshold_type: minimum}
+          - {metric_name: category_accuracy_cancellation, baseline_value: 0.65, tolerance: 0.05, threshold_type: minimum}
+      - input: ref('eval_aggregate')
+        rows:
+          # category_accuracy_cancellation intentionally absent
+          - {metric_name: overall_accuracy, metric_value: 0.90}
+    expect:
+      rows:
+        - {metric_name: overall_accuracy, regression_status: 'PASS'}
+        - {metric_name: category_accuracy_cancellation, regression_status: 'MISSING'}
+
+  - name: regression_missing_when_metric_value_null
+    model: regression_check
+    given:
+      - input: ref('baseline_metrics')
+        rows:
+          - {metric_name: overall_accuracy, baseline_value: 0.88, tolerance: 0.05, threshold_type: minimum}
+      - input: ref('eval_aggregate')
+        rows:
+          - {metric_name: overall_accuracy, metric_value: null}
+    expect:
+      rows:
+        - {metric_name: overall_accuracy, regression_status: 'MISSING'}
+
+  - name: regression_flags_drop_below_tolerance
+    model: regression_check
+    given:
+      - input: ref('baseline_metrics')
+        rows:
+          - {metric_name: overall_accuracy, baseline_value: 0.88, tolerance: 0.05, threshold_type: minimum}
+      - input: ref('eval_aggregate')
+        rows:
+          - {metric_name: overall_accuracy, metric_value: 0.80}
+    expect:
+      rows:
+        - {metric_name: overall_accuracy, regression_status: 'REGRESSION'}
