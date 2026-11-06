@@ -1,0 +1,41 @@
+ticket_id,ticket_text,language,created_at,category_ground_truth,priority,customer_tier
+TKT-001,"My monthly invoice shows $450 but I only used 30 compute hours this cycle. The per-hour rate seems wrong compared to my contract terms. Can someone review the charges?",en,2026-01-15,billing,medium,business
+TKT-002,"I cannot log into my account. I have tried resetting my password three times and the reset email never arrives. I have checked spam folders. This has been going on for two days now.",en,2026-01-15,account_access,high,business
+TKT-003,"The API returns a 500 error when I try to create a new warehouse via the REST endpoint. Here is the error trace: ConnectionTimeout after 30s on POST /v1/warehouses. Started happening after your maintenance window on Friday.",en,2026-01-15,technical_issue,high,enterprise
+TKT-004,"Does your platform support real-time streaming ingestion from Kafka? We are evaluating tools for our event-driven architecture and need sub-second latency.",en,2026-01-16,product_question,low,free
+TKT-005,"I would like to cancel my subscription effective end of this billing period. We have moved our workloads to a different provider. Please confirm the cancellation and let me know about any remaining balance.",en,2026-01-16,cancellation,medium,business
+TKT-006,"How do I configure SSO with Okta? Is there documentation available for the SAML integration setup?",en,2026-01-16,product_question,low,business
+TKT-007,"Our data pipeline has been failing every night at 2am for the past week. The error message says disk quota exceeded but our storage dashboard shows only 60% usage. Something is not adding up.",en,2026-01-17,technical_issue,high,enterprise
+TKT-008,"I was charged twice for last month. Two identical transactions of $890 appeared on my credit card statement dated January 3rd. Please refund the duplicate charge.",en,2026-01-17,billing,high,business
+TKT-009,"We need to remove a former employee from our account. Their email is jsmith@example.com. They left the company last week and should no longer have access to any resources.",en,2026-01-17,account_access,medium,enterprise
+TKT-010,"What is the maximum number of concurrent queries supported per warehouse? We are planning capacity for a new analytics workload with approximately 200 concurrent users.",en,2026-01-18,product_question,medium,enterprise
+TKT-011,"Cancel everything immediately. Your service is terrible and I want a full refund for the last 6 months. I have been experiencing constant outages and nobody responds to my tickets.",en,2026-01-18,cancellation,high,business
+TKT-012,"I accidentally dropped a production table. Is there any way to recover it? The table name was ANALYTICS.CORE.DAILY_REVENUE and it was dropped about 10 minutes ago.",en,2026-01-18,technical_issue,critical,enterprise
+TKT-013,"Our team needs read-only access to the REPORTING schema for three new analysts. Their emails are: a.chen@example.com b.kumar@example.com c.jones@example.com",en,2026-01-19,account_access,low,business
+TKT-014,"Is there a way to schedule queries to run automatically on a daily basis? Looking for something like cron jobs but within the platform.",en,2026-01-19,product_question,low,free
+TKT-015,"The web UI is extremely slow today. Pages take 15-20 seconds to load. This is impacting our entire team of 30 people. Our queries themselves run fine but the interface is unusable.",en,2026-01-19,technical_issue,high,enterprise
+TKT-016,"I need to update my billing address and payment method. The current card on file expires next month.",en,2026-01-20,billing,low,business
+TKT-017,"We are considering downgrading from Enterprise to Business tier. What features would we lose and is there a grace period to migrate our configurations?",en,2026-01-20,cancellation,medium,enterprise
+TKT-018,"The COPY INTO command fails with error: file format CSV_FORMAT does not exist. I am following your documentation exactly. Here is my full SQL statement.",en,2026-01-20,technical_issue,medium,business
+TKT-019,"Can we get an export of all login activity for our account for the past 90 days? This is for a compliance audit and we need it by end of week.",en,2026-01-21,account_access,high,enterprise
+TKT-020,"What are the differences between Standard and Snowpark-optimized warehouses? When should I use each type?",en,2026-01-21,product_question,low,business
+TKT-021,"",en,2026-01-21,technical_issue,medium,business
+TKT-022,"hi",en,2026-01-21,other,low,free
+TKT-023,"help me",en,2026-01-22,other,low,free
+TKT-024,"Necesito ayuda con mi factura. El monto cobrado no corresponde a mi uso del mes pasado. Por favor revisen.",es,2026-01-22,billing,medium,business
+TKT-025,"Ich kann mich nicht in mein Konto einloggen. Das Passwort wird nicht akzeptiert obwohl ich es gerade zurueckgesetzt habe.",de,2026-01-22,account_access,high,business
+TKT-026,"Je voudrais annuler mon abonnement. Pouvez-vous confirmer la date effective de la resiliation?",fr,2026-01-22,cancellation,medium,business
+TKT-027,"My warehouse auto-suspended after 5 minutes of inactivity but I set it to 15 minutes. The ALTER WAREHOUSE command seemed to succeed but the behaviour did not change. Running SHOW WAREHOUSES confirms the setting is 15 min.",en,2026-01-23,technical_issue,medium,business
+TKT-028,"We are being billed for a warehouse that we decommissioned two months ago. The warehouse LEGACY_ETL_WH was dropped on November 15 but charges continue to appear on our invoice.",en,2026-01-23,billing,high,enterprise
+TKT-029,"Password reset is not working. Every time I click the link it says token expired even though I click it within seconds of receiving the email. Tried three different browsers.",en,2026-01-23,account_access,high,business
+TKT-030,"What programming languages are supported for UDFs? Specifically interested in Rust support.",en,2026-01-23,product_question,low,free
+TKT-031,"Our contract renewal is coming up in 30 days. We would like to discuss reducing our commitment from 500 to 200 credits per month based on our actual usage over the past year.",en,2026-01-24,cancellation,medium,enterprise
+TKT-032,"Multiple users in our organization are seeing permission denied errors when querying tables they had access to yesterday. Nothing changed in our role grants. Started at approximately 9am EST today.",en,2026-01-24,account_access,critical,enterprise
+TKT-033,"Can you explain how result caching works? Does it persist across sessions? What invalidates the cache?",en,2026-01-24,product_question,low,business
+TKT-034,"I uploaded a 50GB CSV file to a stage but the COPY INTO is only loading 30GB of rows. No errors in the load history. The remaining rows seem to be silently dropped.",en,2026-01-24,technical_issue,high,enterprise
+TKT-035,"Refund request for January. We experienced 12 hours of downtime on January 10th which violated our SLA. Attaching the incident report and uptime calculations.",en,2026-01-25,billing,high,enterprise
+TKT-036,"How do I share a database with another Snowflake account in a different region? Is cross-region sharing supported?",en,2026-01-25,product_question,medium,business
+TKT-037,"I need to cancel my free trial before it converts to a paid plan. The trial ends tomorrow. Please confirm cancellation.",en,2026-01-25,cancellation,medium,free
+TKT-038,"Our Snowpipe is not picking up new files from S3. The pipe status shows RUNNING but no files have been loaded in the past 6 hours. The S3 event notifications are configured correctly.",en,2026-01-25,technical_issue,high,enterprise
+TKT-039,"Account locked after too many failed login attempts. I know my password is correct. Please unlock the account for user admin@example.com.",en,2026-01-26,account_access,high,enterprise
+TKT-040,"We want to terminate our enterprise agreement early. What are the penalties and process for early termination? Our legal team needs the details within this week.",en,2026-01-26,cancellation,high,enterprise
