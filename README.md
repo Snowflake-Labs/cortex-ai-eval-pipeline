@@ -41,7 +41,7 @@ Online evaluation uses behavioral metrics (no labels needed). Offline evaluation
 - Snowflake account with [Cortex AI](https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions) access
 - Python 3.10+ (tested on 3.12)
 - dbt-core >= 1.10.5, dbt-snowflake >= 1.10 (tested on 1.12, pinned in `requirements.txt`)
-- Cortex models: `mistral-large2` (classifier), `claude-sonnet-4-5` (judge)
+- Cortex models: `llama3.3-70b` (classifier), `claude-sonnet-4-5` (judge)
 
 ## Setup
 
@@ -125,7 +125,7 @@ DBT_PROFILES_DIR=. dbt build --target ci --full-refresh --exclude tag:runtime ta
 This materializes the following tables in `LLM_PIPELINE_CI`:
 
 1. **Eligibility** — `PIPELINE.ELIGIBILITY_CHECK` rejects invalid records before they reach inference (empty text, too short, unsupported language)
-2. **Inference** — `PIPELINE.CLASSIFY_TICKET` classifies each eligible ticket via Cortex AI (`mistral-large2`)
+2. **Inference** — `PIPELINE.CLASSIFY_TICKET` classifies each eligible ticket via Cortex AI (`llama3.3-70b`)
 3. **Output validation + LLM judge** — `EVALUATION.EVAL_ROW_LEVEL` runs a deterministic format check and a `claude-sonnet-4-5` judge that scores reasoning quality per row
 4. **Aggregate metrics** — `EVALUATION.EVAL_AGGREGATE` rolls up row-level results into `invalid_output_rate`, `judge_flag_rate`, `prediction_distribution_shift`, plus CI-only accuracy metrics: `overall_accuracy` and per-category `category_accuracy_{category}`
 5. **Ground truth comparison** — `OFFLINE.EVAL_GROUND_TRUTH` joins predictions against labeled ground truth and computes `is_correct`
@@ -146,7 +146,7 @@ This materializes the following objects in `LLM_PIPELINE_PROD`:
 1. **Staging** — `PIPELINE.STG_SUPPORT_TICKETS` (view, reads `production_tickets`)
 2. **Profiling** — `PIPELINE.PROFILE_INPUT_HEALTH` (dataset health snapshot: null rates, text lengths, volume)
 3. **Eligibility** — `PIPELINE.ELIGIBILITY_CHECK` (rejects empty text, too-short text, unsupported languages)
-4. **Inference** — `PIPELINE.CLASSIFY_TICKET` (Cortex AI classification via `mistral-large2`)
+4. **Inference** — `PIPELINE.CLASSIFY_TICKET` (Cortex AI classification via `llama3.3-70b`)
 5. **Output validation + LLM judge** — `EVALUATION.EVAL_ROW_LEVEL` (deterministic format check + `claude-sonnet-4-5` judge scoring)
 6. **Aggregate metrics** — `EVALUATION.EVAL_AGGREGATE` (rolls up `invalid_output_rate`, `judge_flag_rate`, `prediction_distribution_shift`, `eligible_coverage`)
 7. **Quality gate** — `ONLINE.GATE_DECISION` compares metrics against thresholds configured in `seeds/evaluation_thresholds.csv`; produces `PASS` or `FAIL`
@@ -177,7 +177,7 @@ Key variables in `dbt_project.yml`:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `llm_model` | `mistral-large2` | Model for classification |
+| `llm_model` | `llama3.3-70b` | Model for classification |
 | `eval_llm_model` | `claude-sonnet-4-5` | Model for LLM judge |
 | `prompt_version` | `v1.0` | Tracked in input fingerprint |
 | `min_text_length` | `20` | Eligibility threshold |
