@@ -27,7 +27,7 @@ clean-targets:
   - "dbt_packages"
 
 vars:
-  llm_model: "mistral-large2"
+  llm_model: "llama3.3-70b"
   eval_llm_model: "claude-sonnet-4-5"
   prompt_version: "v1.0"
   min_text_length: 20
